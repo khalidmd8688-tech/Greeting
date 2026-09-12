@@ -100,6 +100,7 @@
             display: flex;
             gap: 20px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
 
         .radio-group label {
@@ -244,8 +245,15 @@
     <!-- EmailJS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/index.min.js"></script>
     <script>
-        // Initialize EmailJS with your Public Key
-        emailjs.init("JR4gVREi6xdL0eU5P");
+        // Wait for EmailJS to load
+        window.addEventListener('load', function() {
+            try {
+                emailjs.init("JR4gVREi6xdL0eU5P");
+                console.log("EmailJS initialized successfully");
+            } catch(e) {
+                console.error("EmailJS initialization error:", e);
+            }
+        });
 
         document.getElementById('greetingForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -255,29 +263,27 @@
             const gender = document.querySelector('input[name="gender"]:checked').value;
             const region = document.getElementById('region').value;
             const submitBtn = document.getElementById('submitBtn');
+            const output = document.getElementById('output');
 
             // Disable button while sending
             submitBtn.disabled = true;
             submitBtn.textContent = 'Sending...';
 
             // Prepare email parameters
-            const emailParams = {
+            const templateParams = {
                 to_email: "khalidmd8688@gmail.com",
-                from_name: name,
                 user_name: name,
                 user_age: age,
                 user_gender: gender,
-                user_region: region,
-                message: `New submission from the Greeting form:\n\nName: ${name}\nAge: ${age}\nGender: ${gender}\nRegion: ${region}`
+                user_region: region
             };
 
             // Send email using EmailJS
-            emailjs.send("service_8tck1uk", "template_4big4a3", emailParams)
+            emailjs.send("service_8tck1uk", "template_4big4a3", templateParams)
                 .then(function(response) {
                     console.log('Email sent successfully!', response);
                     
                     // Show success message
-                    const output = document.getElementById('output');
                     output.classList.remove('error');
                     output.classList.add('success');
                     output.classList.add('show');
@@ -300,15 +306,14 @@
                     console.error('Failed to send email:', error);
                     
                     // Show error message
-                    const output = document.getElementById('output');
                     output.classList.remove('success');
                     output.classList.add('error');
                     output.classList.add('show');
-                    document.getElementById('outputTitle').textContent = '❌ Error';
+                    document.getElementById('outputTitle').textContent = '❌ Error!';
                     document.getElementById('outputText').innerHTML = `
                         Sorry, there was an error sending your details.<br>
-                        Error: ${error.text}<br>
-                        Please try again later.
+                        Error: ${error.text || 'Unknown error'}<br>
+                        Please try again.
                     `;
 
                     submitBtn.disabled = false;
