@@ -135,10 +135,14 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .output {
             margin-top: 30px;
             padding: 20px;
-            background: #f0f4ff;
             border-radius: 8px;
             display: none;
             text-align: center;
@@ -148,10 +152,27 @@
             display: block;
         }
 
+        .output.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .output.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+
         .output h3 {
-            color: #667eea;
             margin-bottom: 15px;
             font-size: 22px;
+        }
+
+        .output.success h3 {
+            color: #28a745;
+        }
+
+        .output.error h3 {
+            color: #dc3545;
         }
 
         .output p {
@@ -210,17 +231,22 @@
                     </select>
                 </div>
 
-                <button type="submit">Submit</button>
+                <button type="submit" id="submitBtn">Submit</button>
             </form>
 
             <div class="output" id="output">
-                <h3>Welcome!</h3>
+                <h3 id="outputTitle"></h3>
                 <p id="outputText"></p>
             </div>
         </div>
     </div>
 
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/index.min.js"></script>
     <script>
+        // Initialize EmailJS
+        emailjs.init("YOUR_PUBLIC_KEY_HERE");
+
         document.getElementById('greetingForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -228,16 +254,65 @@
             const age = document.getElementById('age').value;
             const gender = document.querySelector('input[name="gender"]:checked').value;
             const region = document.getElementById('region').value;
+            const submitBtn = document.getElementById('submitBtn');
 
-            const outputText = `
-                Name: ${name}<br>
-                Age: ${age}<br>
-                Gender: ${gender}<br>
-                Region: ${region}
-            `;
+            // Disable button while sending
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
 
-            document.getElementById('outputText').innerHTML = outputText;
-            document.getElementById('output').classList.add('show');
+            // Prepare email parameters
+            const emailParams = {
+                to_email: "khalidmd8688@gmail.com",
+                from_name: name,
+                user_name: name,
+                user_age: age,
+                user_gender: gender,
+                user_region: region,
+                message: `New submission from the Greeting form:\n\nName: ${name}\nAge: ${age}\nGender: ${gender}\nRegion: ${region}`
+            };
+
+            // Send email using EmailJS
+            emailjs.send("YOUR_SERVICE_ID_HERE", "YOUR_TEMPLATE_ID_HERE", emailParams)
+                .then(function(response) {
+                    console.log('Email sent successfully!', response);
+                    
+                    // Show success message
+                    const output = document.getElementById('output');
+                    output.classList.remove('error');
+                    output.classList.add('success');
+                    output.classList.add('show');
+                    document.getElementById('outputTitle').textContent = '✅ Success!';
+                    document.getElementById('outputText').innerHTML = `
+                        Thank you ${name}!<br>
+                        Your details have been sent successfully.<br><br>
+                        <strong>Your Information:</strong><br>
+                        Name: ${name}<br>
+                        Age: ${age}<br>
+                        Gender: ${gender}<br>
+                        Region: ${region}
+                    `;
+
+                    // Reset form
+                    document.getElementById('greetingForm').reset();
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                }, function(error) {
+                    console.error('Failed to send email:', error);
+                    
+                    // Show error message
+                    const output = document.getElementById('output');
+                    output.classList.remove('success');
+                    output.classList.add('error');
+                    output.classList.add('show');
+                    document.getElementById('outputTitle').textContent = '❌ Error';
+                    document.getElementById('outputText').innerHTML = `
+                        Sorry, there was an error sending your details.<br>
+                        Please make sure the EmailJS is properly configured.
+                    `;
+
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                });
         });
     </script>
 </body>
