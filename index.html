@@ -244,8 +244,8 @@
     <!-- EmailJS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/index.min.js"></script>
     <script>
-        // Initialize EmailJS
-        emailjs.init("service 8tck1uk");
+        // Initialize EmailJS with your Public Key
+        emailjs.init("JR4gVREi6xdL0eU5P");
 
         document.getElementById('greetingForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -272,7 +272,7 @@
             };
 
             // Send email using EmailJS
-            emailjs.send("JR4gVREi6xdL0eU5P", "template_4big4a3", emailParams)
+            emailjs.send("service_8tck1uk", "template_4big4a3", emailParams)
                 .then(function(response) {
                     console.log('Email sent successfully!', response);
                     
@@ -284,7 +284,7 @@
                     document.getElementById('outputTitle').textContent = '✅ Success!';
                     document.getElementById('outputText').innerHTML = `
                         Thank you ${name}!<br>
-                        Your details have been sent successfully.<br><br>
+                        Your details have been sent successfully to khalidmd8688@gmail.com<br><br>
                         <strong>Your Information:</strong><br>
                         Name: ${name}<br>
                         Age: ${age}<br>
@@ -307,7 +307,8 @@
                     document.getElementById('outputTitle').textContent = '❌ Error';
                     document.getElementById('outputText').innerHTML = `
                         Sorry, there was an error sending your details.<br>
-                        Please make sure the EmailJS is properly configured.
+                        Error: ${error.text}<br>
+                        Please try again later.
                     `;
 
                     submitBtn.disabled = false;
